@@ -7,7 +7,6 @@ import LandingPage from "./components/LandingPage";
 import SignupPage from "./components/SignupPage";
 import reportWebVitals from "./reportWebVitals";
 import CallButton from "./components/CallButton";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
