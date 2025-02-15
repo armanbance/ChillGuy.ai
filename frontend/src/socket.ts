@@ -30,6 +30,7 @@ export const disconnectSocket = () => {
 
 export const emitSocketEvent = <T>(eventName: string, data: T) => {
   const socket = getSocket();
+  console.log("Emitting event:", eventName);
   socket.emit(eventName, data);
 };
 

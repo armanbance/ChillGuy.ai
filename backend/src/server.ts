@@ -3,7 +3,8 @@ import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import User from './models/User';
+import makeCall from "./twilio";
+import User from "./models/User";
 
 dotenv.config();
 
@@ -38,7 +39,7 @@ io.on("connection", (socket: Socket) => {
     console.log("hello");
   });
   socket.on("saveUser", async (user) => {
-    console.log("Save user called")
+    console.log("Save user called");
     try {
       const newUser = new User(user);
       await newUser.save();
@@ -52,6 +53,23 @@ io.on("connection", (socket: Socket) => {
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
+  });
+
+  socket.on("makeCall", async (data) => {
+    console.log("makeCall initiated");
+    try {
+      const callSid = await makeCall();
+      socket.emit("callStatus", {
+        status: "success",
+        message: "Call initiated successfully!",
+      });
+    } catch (error) {
+      console.error("Error making call:", error);
+      socket.emit("callStatus", {
+        status: "error",
+        message: "Failed to make call. Please try again.",
+      });
+    }
   });
 });
 
