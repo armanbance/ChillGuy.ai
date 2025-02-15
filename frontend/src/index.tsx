@@ -1,8 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './index.css';
 import App from './App';
 import LandingPage from './components/LandingPage';
+import SignupPage from './components/SignupPage';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(
@@ -10,10 +12,14 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <LandingPage /> {/* Render the LandingPage as the main component */}
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+      </Routes>
+    </Router>
   </React.StrictMode>
 );
-
 
 
 

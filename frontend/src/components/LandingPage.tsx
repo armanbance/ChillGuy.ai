@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
-import "./LandingPage.css"; // Import the CSS file
+import "./LandingPage.css";
 import { getSocket } from "../socket";
+import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
   useEffect(() => {
@@ -19,8 +20,8 @@ const LandingPage = () => {
           <a href="#">Contact</a>
         </div>
         <div className="nav-buttons">
-          <button className="btn btn-outline">Sign in</button>
-          <button className="btn btn-dark">Register</button>
+          <Link to="/signup" className="btn btn-outline">Sign in</Link>
+          <Link to="/signup" className="btn btn-dark">Register</Link>
         </div>
       </nav>
 
@@ -30,7 +31,7 @@ const LandingPage = () => {
         <p className="hero-text">Calmness a call away</p>
         <div className="hero-buttons">
           <button className="btn btn-outline">Learn More</button>
-          <button className="btn btn-dark">Sign Up</button>
+          <Link to="/signup" className="btn btn-dark">Sign Up</Link>
         </div>
       </div>
     </div>
