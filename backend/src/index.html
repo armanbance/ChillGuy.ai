@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <title>Socket.io Testing</title>
+  </head>
+  <body>
+    <h2>Socket Connection Test</h2>
+    <button id="save-user">Save User</button>
+    <button id="call-user">Call User</button>
+    <div id="output"></div>
+
+    <script>
+      const socket = io("http://localhost:4000", {
+        withCredentials: true,
+        transports: ["websocket"],
+      });
+      function logMessage(message) {
+        const output = document.getElementById("output");
+        const newMessage = document.createElement("p");
+        newMessage.textContent = message;
+        output.appendChild(newMessage);
+      }
+
+      socket.on("connect", () => {
+        logMessage("Connected to the server with Socket ID: " + socket.id);
+      });
+
+      socket.on("connect_error", (error) => {
+        logMessage("Connection Error: " + error);
+      });
+
+      socket.on("disconnect", () => {
+        logMessage("Disconnected from the server.");
+      });
+
+      document.getElementById("save-user").addEventListener("click", () => {
+        logMessage("Saving user...");
+        const dummy = {
+          name: "Arman",
+          email: "armanbance@gmail.com",
+          phoneNumber: "707-816-9356",
+          preferences: [],
+        };
+        socket.emit("saveUser", dummy);
+      });
+
+      document.getElementById("call-user").addEventListener("click", () => {
+        logMessage("Attempting to call user...");
+        // socket.emit("saveUser", dummy);
+      });
+
+      socket.on("saveUser", (data) => {
+        logMessage("Save user response: " + data.message);
+      });
+    </script>
+  </body>
+</html>

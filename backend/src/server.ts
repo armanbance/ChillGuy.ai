@@ -3,6 +3,7 @@ import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import User from './models/User';
 
 dotenv.config();
 
@@ -37,15 +38,16 @@ io.on("connection", (socket: Socket) => {
     console.log("hello");
   });
   socket.on("saveUser", async (user) => {
-    // try {
-    //   const newUser = new User(user);
-    //   await newUser.save();
-    //   console.log("User saved successfully:", newUser);
-    //   socket.emit("userSaved", { success: true, user: newUser });
-    // } catch (error) {
-    //   console.error("Error saving user:", error);
-    //   socket.emit("userSaved", { success: false, error: error.message });
-    // }
+    console.log("Save user called")
+    try {
+      const newUser = new User(user);
+      await newUser.save();
+      console.log("User saved successfully:", newUser);
+      socket.emit("userSaved", { success: true, user: newUser });
+    } catch (error) {
+      console.error("Error saving user:", error);
+      socket.emit("userSaved", { success: false, error: error });
+    }
   });
 
   socket.on("disconnect", () => {
