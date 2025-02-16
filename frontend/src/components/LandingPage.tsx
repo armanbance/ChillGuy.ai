@@ -13,10 +13,10 @@ const LandingPage = () => {
     <div className="landing-container">
       {/* Navbar */}
       <nav className="navbar">
-        <h1 className="logo">ChillGuy.ai</h1>
+        <Link to="/" className="logo">ChillGuy.ai</Link>
         <div className="nav-links">
           <a href="#">Resources</a>
-          <a href="#">About</a>
+          <Link to="/about">About</Link>
           <a href="#">Contact</a>
         </div>
         <div className="nav-buttons">
@@ -30,7 +30,7 @@ const LandingPage = () => {
         <h1 className="hero-title">ChillGuy.ai</h1>
         <p className="hero-text">Calmness a call away</p>
         <div className="hero-buttons">
-          <button className="btn btn-outline">Learn More</button>
+          <Link to="/about" className="btn btn-outline">Learn More</Link>
           <Link to="/signup" className="btn btn-dark">Sign Up</Link>
         </div>
       </div>

@@ -27,11 +27,11 @@ const SignupPage: React.FC = () => {
         <div className="landing-container">
             {/* Navbar */}
             <nav className="navbar">
-                <h1 className="logo">ChillGuy.ai</h1>
+                <Link to="/" className="logo">ChillGuy.ai</Link>
                 <div className="nav-links">
-                    <a href="#">Resources</a>
-                    <a href="#">About</a>
-                    <a href="#">Contact</a>
+                    <Link to="/resources">Resources</Link>
+                    <Link to="/about">About</Link>
+                    <Link to="/contact">Contact</Link>
                 </div>
                 <div className="nav-buttons">
                     <Link to="/signup" className="btn btn-outline">Sign in</Link>
@@ -41,13 +41,13 @@ const SignupPage: React.FC = () => {
 
             <div className="signup-content">
                 <div className="signup-text">
-                    <h1>Join Our Community</h1>
-                    <p>Create an account to access exclusive features and connect with other users. 
+                    <h1>Peace, One Call at a Time</h1>
+                    <p>Create an account to access exclusive features and start chatting with your personal AI assistant. 
                        Our platform provides a seamless experience for managing your digital needs.</p>
                     <p>Benefits of joining:</p>
                     <ul>
                         <li>Access to premium features</li>
-                        <li>Connect with other users</li>
+                        <li>Connect and chat with other AI agents</li>
                         <li>Personalized experience</li>
                         <li>Regular updates and notifications</li>
                     </ul>

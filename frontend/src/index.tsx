@@ -7,6 +7,7 @@ import LandingPage from "./components/LandingPage";
 import SignupPage from "./components/SignupPage";
 import reportWebVitals from "./reportWebVitals";
 import CallButton from "./components/CallButton";
+import AboutPage from './components/AboutPage';
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -18,6 +19,7 @@ root.render(
         <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/call" element={<CallButton />} />
+        <Route path="/about" element={<AboutPage />} />
       </Routes>
     </Router>
   </React.StrictMode>

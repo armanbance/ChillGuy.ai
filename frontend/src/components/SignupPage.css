@@ -117,3 +117,17 @@
         padding: 1rem;
     }
 }
+
+.navbar .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+    text-decoration: none; /* Removes the underline */
+    cursor: pointer;
+}
+
+.navbar .logo:hover {
+    color: #2c3e50; /* Keeps the same color on hover */
+    text-decoration: none; /* Ensures no underline appears on hover */
+}
+
