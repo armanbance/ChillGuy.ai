@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getSocket, addSocketListener } from "../socket";
 import "./SigninPage.css";
 import GoogleLoginButton from "./GoogleLoginButton";
+import { signIn } from "../api/signInApi";
 
-interface SigninResponse {
-  success: boolean;
-  message?: string;
-  user?: {
-    email: string;
-  };
-}
+// interface SigninResponse {
+//   success: boolean;
+//   message?: string;
+//   user?: {
+//     email: string;
+//   };
+// }
 
 const SigninPage = () => {
   const navigate = useNavigate();
@@ -20,36 +20,41 @@ const SigninPage = () => {
   });
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const removeListener = addSocketListener<SigninResponse>(
-      "signinResponse",
-      (response: SigninResponse) => {
-        if (response.success) {
-          navigate("/call");
-        } else {
-          setError(response.message || "Invalid email or password");
-        }
-      }
-    );
+ 
 
-    return () => {
-      removeListener();
-    };
-  }, [navigate]);
+  // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setFormData({
+  //     ...formData,
+  //     [e.target.name]: e.target.value,
+  //   });
+  // };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
+
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    const socket = getSocket();
-    socket.emit("signin", formData);
+    try {
+
+      // debug statement
+      console.log("Attempting to sign in with:", formData);
+
+      const response = await signIn(formData);
+      console.log("Sign in successful:", response);
+      navigate("/call");
+    } catch (error: any) {
+      console.error("Sign in error:", error);
+      setError(error.response?.data?.message || "Invalid email or password");
+    }
   };
 
   return (

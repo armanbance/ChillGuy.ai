@@ -7,7 +7,7 @@ interface User {
   password: string
 }
 
-export const createUser = async (userData: User) => {
+export const createUser = async (userData: User) => { //sending data to the backend
   try {
     const response = await axiosInstance.post("/api/users", userData);
     return response.data;

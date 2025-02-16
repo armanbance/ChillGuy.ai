@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { emitSocketEvent, getSocket, addSocketListener } from "../socket";
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 import "./CallButton.css";
 import { useAuth } from "../hooks/useAuth";
 import { schedule } from "../api/scheduleApi";
@@ -10,21 +9,6 @@ const CallButton = () => {
   const [scheduledTime, setScheduledTime] = useState<string>("");
   const [userPhone, setUserPhone] = useState<string>("");
   const userCredentials = useAuth();
-
-  useEffect(() => {
-    const handleCallStatus = (data: { status: string; message: string }) => {
-      setCallStatus(data.message);
-    };
-
-    // Register socket listener
-    addSocketListener("callStatus", handleCallStatus);
-
-    // Cleanup listener when component unmounts
-    return () => {
-      const socket = getSocket();
-      socket?.off("callStatus", handleCallStatus);
-    };
-  }, []);
 
   const addToGoogleCalendar = async (scheduledDateTime: Date) => {
     try {
@@ -106,9 +90,27 @@ const CallButton = () => {
     await addToGoogleCalendar(scheduledDateTime);
   };
 
-  const makeCall = () => {
+  const makeCall = async () => {
     setCallStatus("Initiating call...");
-    emitSocketEvent("makeCall", { phone: userPhone });
+    try {
+      // Replace socket emit with HTTP request
+      const response = await fetch('/api/calls/make', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phone: userPhone }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to initiate call');
+      }
+
+      setCallStatus("Call initiated successfully!");
+    } catch (error) {
+      console.error("Error making call:", error);
+      setCallStatus("Failed to initiate call. Please try again.");
+    }
   };
 
   return (
@@ -124,12 +126,7 @@ const CallButton = () => {
           <Link to="/contact">Contact</Link>
         </div>
         <div className="nav-buttons">
-          <Link to="/signup" className="btn btn-outline">
-            Sign in
-          </Link>
-          <Link to="/signup" className="btn btn-dark">
-            Register
-          </Link>
+          <Link to="/" className="btn btn-dark">Log Out</Link>
         </div>
       </nav>
 
