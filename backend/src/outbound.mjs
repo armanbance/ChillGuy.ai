@@ -12,6 +12,7 @@ import User from "./models/User.js";
 dotenv.config();
 console.log("TEST");
 
+
 // Check for required environment variables
 const MONGODB_URI = process.env.MONGODB_URI || ""; //ADDDDDD HEREEEEEE
 console.log("MONGODB_URI:", MONGODB_URI);

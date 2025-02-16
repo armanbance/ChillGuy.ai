@@ -1,19 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { emitSocketEvent, addSocketListener } from "../socket";
 import "./SignupPage.css";
 import { useGoogleLogin, googleLogout } from "@react-oauth/google";
 import axios from "axios";
 import GoogleLoginButton from "./GoogleLoginButton";
 import { createUser } from "../api/userApi";
-
-interface SignupForm {
-  username: string;
-  email: string;
-  password: string;
-  phoneNumber: string;
-}
 
 interface GoogleUser {
   access_token: string;
@@ -35,6 +27,8 @@ const SignupPage: React.FC = () => {
   });
   const [user, setUser] = useState<GoogleUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [signupMessage, setSignupMessage] = useState<string>("");
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
   useEffect(() => {
     if (user?.access_token) {
@@ -68,22 +62,31 @@ const SignupPage: React.FC = () => {
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Emit the signup data through socket
     try {
-      console.log("form data:", formData);
       const response = await createUser(formData);
-      // emitSocketEvent("saveUser", formData);
-      console.log("SUCCESSSSSS", response);
-      // Add a timeout to handle cases where the server doesn't respond
+      console.log("SUCCESS", response);
+      setIsSuccess(true);
+      setSignupMessage("Account successfully created! Redirecting to sign in...");
+      
+      // Clear form
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+        phone: "",
+      });
+
+      // Redirect after 3 seconds
+      setTimeout(() => {
+        navigate("/signin");
+      }, 3000);
     } catch (error) {
-      // Listen for the response from the server
       console.log(error);
+      setIsSuccess(false);
+      setSignupMessage("Failed to create account. Please try again.");
     }
-    // Set a timeout to handle the case where the server doesn't respond
   };
 
   return (
@@ -178,6 +181,18 @@ const SignupPage: React.FC = () => {
           </form>
         </div>
       </div>
+
+      {/* Message display */}
+      {signupMessage && (
+        <p style={{
+          textAlign: 'center',
+          marginTop: '20px',
+          color: isSuccess ? '#4caf50' : '#f44336',
+          fontSize: '16px'
+        }}>
+          {signupMessage}
+        </p>
+      )}
     </div>
   );
 };
