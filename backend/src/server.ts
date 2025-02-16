@@ -46,16 +46,15 @@ app.get("/", (req, res) => {
 io.on("connection", (socket: Socket) => {
   console.log("A user connected:", socket.id);
 
-
   // Add new socket handler
   socket.on("signin", async (data) => {
     try {
       const user = await User.findOne({ email: data.email });
-      
+
       if (!user) {
-        socket.emit("signinResponse", { 
-          success: false, 
-          message: "Invalid email or password" 
+        socket.emit("signinResponse", {
+          success: false,
+          message: "Invalid email or password",
         });
         return;
       }
@@ -63,29 +62,27 @@ io.on("connection", (socket: Socket) => {
       // Note: In a prod environment, passwords should be hashed
       // and use proper password comparison
       if (user.password === data.password) {
-        socket.emit("signinResponse", { 
+        socket.emit("signinResponse", {
           success: true,
           user: {
             email: user.email,
             // Add other non-sensitive user data you want to send
-          }
+          },
         });
       } else {
-        socket.emit("signinResponse", { 
-          success: false, 
-          message: "Invalid email or password" 
+        socket.emit("signinResponse", {
+          success: false,
+          message: "Invalid email or password",
         });
       }
     } catch (error) {
       console.error("Error during signin:", error);
-      socket.emit("signinResponse", { 
-        success: false, 
-        message: "An error occurred during sign in" 
+      socket.emit("signinResponse", {
+        success: false,
+        message: "An error occurred during sign in",
       });
     }
   });
-
-
 
   socket.on("hello", async (data) => {
     console.log("hello");
