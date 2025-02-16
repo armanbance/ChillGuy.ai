@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { emitSocketEvent, getSocket, addSocketListener } from "../socket";
 import "./CallButton.css";
+import { useAuth } from "../hooks/useAuth";
 
 const CallButton = () => {
   const [callStatus, setCallStatus] = useState<string>("");
   const [scheduledTime, setScheduledTime] = useState<string>("");
   const [userPhone, setUserPhone] = useState<string>("");
+  const userCredentials = useAuth();
 
   useEffect(() => {
     const handleCallStatus = (data: { status: string; message: string }) => {
@@ -22,7 +24,47 @@ const CallButton = () => {
     };
   }, []);
 
-  const scheduleCall = () => {
+  const addToGoogleCalendar = async (scheduledDateTime: Date) => {
+    try {
+      const event = {
+        summary: "Check up with ChillGuy.ai",
+        description: "Scheduled wellness check-in call with ChillGuy.ai",
+        start: {
+          dateTime: scheduledDateTime.toISOString(),
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        },
+        end: {
+          dateTime: new Date(
+            scheduledDateTime.getTime() + 30 * 60000
+          ).toISOString(),
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        },
+      };
+
+      const response = await fetch(
+        "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${userCredentials.access_token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(event),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to create calendar event");
+      }
+
+      setCallStatus("Call scheduled and added to your Google Calendar!");
+    } catch (error) {
+      console.error("Error adding to calendar:", error);
+      setCallStatus("Call scheduled, but failed to add to calendar");
+    }
+  };
+
+  const scheduleCall = async () => {
     if (!scheduledTime || !userPhone) {
       setCallStatus("Please enter both phone number and time");
       return;
@@ -36,12 +78,12 @@ const CallButton = () => {
       return;
     }
 
-    // Replace 'YOUR_USER_ID' with actual user ID from your authentication system
     emitSocketEvent("scheduleCall", {
       phone: userPhone,
       scheduledTime: scheduledTime,
     });
-    setCallStatus("Scheduling call...");
+
+    await addToGoogleCalendar(scheduledDateTime);
   };
 
   const makeCall = () => {

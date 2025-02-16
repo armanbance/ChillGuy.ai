@@ -3,11 +3,13 @@ import mongoose, { Schema, Document } from "mongoose";
 interface IScheduledCall {
   scheduledTime: Date;
   status: "pending" | "completed" | "failed";
+  prompt?: string;
+  first_message?: string;
 }
 
 const UserSchema: Schema = new Schema({
   name: { type: String, required: false },
-  email: { type: String, required: false },
+  email: { type: String, required: false, sparse: true },
   phone: { type: String, required: true },
   password: { type: String, required: false },
   preferences: [
@@ -18,6 +20,8 @@ const UserSchema: Schema = new Schema({
         enum: ["pending", "completed", "failed"],
         default: "pending",
       },
+      prompt: { type: String },
+      first_message: { type: String },
     },
   ],
 });
