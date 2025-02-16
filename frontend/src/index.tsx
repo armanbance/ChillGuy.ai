@@ -11,6 +11,7 @@ import reportWebVitals from "./reportWebVitals";
 import CallButton from "./components/CallButton";
 import AboutPage from "./components/AboutPage";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import SigninPage from "./components/SigninPage";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -27,6 +28,7 @@ root.render(
           <Route path="/resources" element={<ResourcesPage />} />
           <Route path="/call" element={<CallButton />} />
           <Route path="/about" element={<AboutPage />} />
+        <Route path="/signin" element={<SigninPage />} />
         </Routes>
       </Router>
     </GoogleOAuthProvider>

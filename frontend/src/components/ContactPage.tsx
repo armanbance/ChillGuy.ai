@@ -7,11 +7,11 @@ const ContactPage = () => {
     <div className="contact-page">
       {/* Navbar */}
       <nav className="navbar">
-        <h1 className="logo">ChillGuy.ai</h1>
+        <Link to="/" className="logo">ChillGuy.ai</Link>
         <div className="nav-links">
           <Link to="/">Home</Link>
-          <Link to="/signup">About</Link>
-          <Link to="/contact">Resources</Link>
+          <Link to="/about">About</Link>
+          <Link to="/resources">Resources</Link>
         </div>
         <div className="nav-buttons">
           <Link to="/signup" className="btn btn-outline">Sign in</Link>

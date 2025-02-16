@@ -8,19 +8,19 @@ const LandingPage = () => {
     getSocket();
     console.log("Get socket called ");
   }, []);
-
+  
   return (
     <div className="landing-container">
       {/* Navbar */}
       <nav className="navbar">
         <Link to="/" className="logo">ChillGuy.ai</Link>
         <div className="nav-links">
-          <Link to="/resources">Resources</Link> {/* Update to use Link */}
-          <Link to="/about">About</Link> {/* Update to use Link */}
-          <Link to="/contact">Contact</Link> {/* Ensure this is a Link component */}
+          <Link to="/resources">Resources</Link>
+          <Link to="/about">About</Link>
+          <Link to="/contact">Contact</Link>
         </div>
         <div className="nav-buttons">
-          <Link to="/signup" className="btn btn-outline">Sign in</Link>
+          <Link to="/signin" className="btn btn-outline">Sign in</Link>
           <Link to="/signup" className="btn btn-dark">Register</Link>
         </div>
       </nav>

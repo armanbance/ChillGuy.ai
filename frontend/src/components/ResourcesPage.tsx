@@ -7,10 +7,10 @@ const ResourcesPage: React.FC = () => {
     <div className="resources-page">
       {/* Navbar */}
       <nav className="navbar">
-        <h1 className="logo">ChillGuy.ai</h1>
+        <Link to="/" className="logo">ChillGuy.ai</Link>
         <div className="nav-links">
           <Link to="/">Home</Link>
-          <Link to="#">About</Link>
+          <Link to="/about">About</Link>
           <Link to="/contact">Contact</Link>
         </div>
         <div className="nav-buttons">

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { emitSocketEvent, getSocket, addSocketListener } from "../socket";
+import { Link } from 'react-router-dom';
 import "./CallButton.css";
 import { useAuth } from "../hooks/useAuth";
 
@@ -93,6 +94,20 @@ const CallButton = () => {
 
   return (
     <div className="call-container">
+      {/* Added Navbar */}
+      <nav className="navbar">
+        <Link to="/" className="logo">ChillGuy.ai</Link>
+        <div className="nav-links">
+          <Link to="/resources">Resources</Link>
+          <Link to="/about">About</Link>
+          <Link to="/contact">Contact</Link>
+        </div>
+        <div className="nav-buttons">
+          <Link to="/signup" className="btn btn-outline">Sign in</Link>
+          <Link to="/signup" className="btn btn-dark">Register</Link>
+        </div>
+      </nav>
+
       <div className="call-content">
         <h1 className="call-title">Schedule Your Call</h1>
         <div className="input-group">

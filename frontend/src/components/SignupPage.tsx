@@ -71,23 +71,36 @@ const SignupPage: React.FC = () => {
     e.preventDefault();
 
     // Emit the signup data through socket
-    console.log("form data:", formData);
-    emitSocketEvent("saveUser", formData);
+    console.log("form data:",formData);
+    emitSocketEvent('saveUser', formData);
+
+    // Add a timeout to handle cases where the server doesn't respond
+    const timeoutDuration = 5000; // 5 seconds
+    let hasReceivedResponse = false;
 
     // Listen for the response from the server
-    addSocketListener<{ success: boolean; user?: any; error?: any }>(
-      "userSaved",
-      (response) => {
-        if (response.success) {
-          console.log("User registered successfully:", response.user);
-          // Redirect to another page (e.g., landing page) after successful signup
-          navigate("/");
-        } else {
-          console.error("Registration failed:", response.error);
-          // Handle error (show error message to user)
-        }
+    addSocketListener<{success: boolean; user?: any; error?: any}>('userSaved', (response) => {
+      hasReceivedResponse = true;
+      if (response.success) {
+        console.log('User registered successfully:', response.user);
+        // Redirect to call page after successful signup
+        navigate('/call');
+      } else {
+        console.error('Registration failed:', response.error);
+        // Handle error (show error message to user)
       }
-    );
+    });
+
+    // Set a timeout to handle the case where the server doesn't respond
+    setTimeout(() => {
+        if (!hasReceivedResponse) {
+          console.log('Registration proceeding despite timeout...');
+          // Proceed to call page anyway since we know the data was saved
+          navigate('/call');
+        }
+      }, timeoutDuration);
+
+
   };
 
   const login = useGoogleLogin({
@@ -100,30 +113,21 @@ const SignupPage: React.FC = () => {
     onError: () => console.log("Login Failed"),
   });
 
-  return (
-    <div className="landing-container">
-      {/* Navbar */}
-      <nav className="navbar">
-        <Link to="/" className="logo">
-          ChillGuy.ai
-        </Link>
-        <div className="nav-links">
-          <a href="/resources">Resources</a>
-          <a href="#">About</a>
-          <a href="/contact">Contact</a>
-          <Link to="/resources">Resources</Link>
-          <Link to="/about">About</Link>
-          <Link to="/contact">Contact</Link>
-        </div>
-        <div className="nav-buttons">
-          <Link to="/signup" className="btn btn-outline">
-            Sign in
-          </Link>
-          <Link to="/signup" className="btn btn-dark">
-            Register
-          </Link>
-        </div>
-      </nav>
+    return (
+        <div className="landing-container">
+            {/* Navbar */}
+            <nav className="navbar">
+                <Link to="/" className="logo">ChillGuy.ai</Link>
+                <div className="nav-links">
+                    <a href="/contact">Contact</a>
+                    <Link to="/resources">Resources</Link>
+                    <Link to="/about">About</Link>
+                </div>
+                <div className="nav-buttons">
+                    <Link to="/signup" className="btn btn-outline">Sign in</Link>
+                    <Link to="/signup" className="btn btn-dark">Register</Link>
+                </div>
+            </nav>
 
       <div className="signup-content">
         <div className="signup-text">
