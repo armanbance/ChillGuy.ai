@@ -87,7 +87,7 @@ fastify.post("/outbound-call", async (request, reply) => {
       callSid: call.sid,
     });
   } catch (error) {
-    console.error("Error initiating outbound call:", error);
+    console.log("Error initiating outbound call:", error);
     reply.code(500).send({
       success: false,
       error: "Failed to initiate call",
@@ -100,15 +100,16 @@ fastify.all("/outbound-call-twiml", async (request, reply) => {
   const prompt = request.query.prompt || "";
   const first_message = request.query.first_message || "";
 
+  console.log("REQ HEADER:::", request.headers.host);
   const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
-    <Response>
-        <Connect>
-        <Stream url="wss://${request.headers.host}/outbound-media-stream">
-            <Parameter name="prompt" value="${prompt}" />
-            <Parameter name="first_message" value="${first_message}" />
-        </Stream>
-        </Connect>
-    </Response>`;
+   <Response>
+       <Connect>
+       <Stream url="wss://${request.headers.host}/outbound-media-stream">
+           <Parameter name="prompt" value="${prompt}" />
+           <Parameter name="first_message" value="${first_message}" />
+       </Stream>
+       </Connect>
+   </Response>`;
 
   reply.type("text/xml").send(twimlResponse);
 });
@@ -135,7 +136,6 @@ fastify.register(async (fastifyInstance) => {
         try {
           const signedUrl = await getSignedUrl();
           elevenLabsWs = new WebSocket(signedUrl);
-
           elevenLabsWs.on("open", () => {
             console.log("[ElevenLabs] Connected to Conversational AI");
 
