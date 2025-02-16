@@ -1,13 +1,6 @@
-import mongoose, { Schema, Document } from "mongoose";
+const mongoose = require("mongoose");
 
-interface IScheduledCall {
-  scheduledTime: Date;
-  status: "pending" | "completed" | "failed";
-  prompt?: string;
-  first_message?: string;
-}
-
-const UserSchema: Schema = new Schema({
+const UserSchema = new mongoose.Schema({
   name: { type: String, required: false },
   email: { type: String, required: false, sparse: true },
   phone: { type: String, required: true },
@@ -26,6 +19,4 @@ const UserSchema: Schema = new Schema({
   ],
 });
 
-const User = mongoose.model("User", UserSchema);
-
-export default User;
+module.exports = mongoose.model("User", UserSchema);

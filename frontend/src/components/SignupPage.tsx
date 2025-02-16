@@ -6,6 +6,7 @@ import "./SignupPage.css";
 import { useGoogleLogin, googleLogout } from "@react-oauth/google";
 import axios from "axios";
 import GoogleLoginButton from "./GoogleLoginButton";
+import { createUser } from "../api/userApi";
 
 interface SignupForm {
   username: string;
@@ -72,37 +73,17 @@ const SignupPage: React.FC = () => {
     e.preventDefault();
 
     // Emit the signup data through socket
-    console.log("form data:", formData);
-    emitSocketEvent("saveUser", formData);
-
-    // Add a timeout to handle cases where the server doesn't respond
-    const timeoutDuration = 5000; // 5 seconds
-    let hasReceivedResponse = false;
-
-    // Listen for the response from the server
-    addSocketListener<{ success: boolean; user?: any; error?: any }>(
-      "userSaved",
-      (response) => {
-        hasReceivedResponse = true;
-        if (response.success) {
-          console.log("User registered successfully:", response.user);
-          // Redirect to call page after successful signup
-          navigate("/call");
-        } else {
-          console.error("Registration failed:", response.error);
-          // Handle error (show error message to user)
-        }
-      }
-    );
-
+    try {
+      console.log("form data:", formData);
+      const response = await createUser(formData);
+      // emitSocketEvent("saveUser", formData);
+      console.log("SUCCESSSSSS", response);
+      // Add a timeout to handle cases where the server doesn't respond
+    } catch (error) {
+      // Listen for the response from the server
+      console.log(error);
+    }
     // Set a timeout to handle the case where the server doesn't respond
-    setTimeout(() => {
-      if (!hasReceivedResponse) {
-        console.log("Registration proceeding despite timeout...");
-        // Proceed to call page anyway since we know the data was saved
-        navigate("/call");
-      }
-    }, timeoutDuration);
   };
 
   return (

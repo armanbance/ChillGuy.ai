@@ -4,7 +4,7 @@ import { Server, Socket } from "socket.io";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import makeCall from "./twilio";
-import User from "./models/User";
+// import User from "./models/User";
 import { Document } from "mongoose";
 
 dotenv.config();
@@ -100,22 +100,22 @@ io.on("connection", (socket: Socket) => {
     }
   });
 
-  socket.on("makeCall", async (data) => {
-    console.log("makeCall initiated with phone:", data.phone);
-    try {
-      const callSid = await makeCall(data.phone);
-      socket.emit("callStatus", {
-        status: "success",
-        message: "Call initiated successfully!",
-      });
-    } catch (error) {
-      console.error("Error making call:", error);
-      socket.emit("callStatus", {
-        status: "error",
-        message: "Failed to make call. Please try again.",
-      });
-    }
-  });
+  // socket.on("makeCall", async (data) => {
+  //   console.log("makeCall initiated with phone:", data.phone);
+  //   try {
+  //     const callSid = await makeCall(data.phone);
+  //     socket.emit("callStatus", {
+  //       status: "success",
+  //       message: "Call initiated successfully!",
+  //     });
+  //   } catch (error) {
+  //     console.error("Error making call:", error);
+  //     socket.emit("callStatus", {
+  //       status: "error",
+  //       message: "Failed to make call. Please try again.",
+  //     });
+  //   }
+  // });
 
   socket.on(
     "scheduleCall",

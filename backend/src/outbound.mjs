@@ -2,14 +2,28 @@ import fastifyFormBody from "@fastify/formbody";
 import fastifyWs from "@fastify/websocket";
 import dotenv from "dotenv";
 import Fastify from "fastify";
+import fastifyCors from "@fastify/cors"; // Add CORS support
 import Twilio from "twilio";
 import WebSocket from "ws";
+import mongoose from "mongoose";
+import User from "./models/User.js";
 
 // Load environment variables from .env file
 dotenv.config();
 console.log("TEST");
 
 // Check for required environment variables
+
+const MONGODB_URI =
+  process.env.MONGODB_URI ||
+  ""; //ADDDDDD HEREEEEEE
+
+console.log("MONGODB_URI:", MONGODB_URI);
+mongoose.set("strictQuery", false);
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("Error connecting to MongoDB:", err));
 
 if (
   !ELEVENLABS_API_KEY ||
@@ -26,6 +40,10 @@ if (
 const fastify = Fastify();
 fastify.register(fastifyFormBody);
 fastify.register(fastifyWs);
+fastify.register(fastifyCors, {
+  origin: "*", // Adjust this to restrict access to only your frontend
+  methods: ["POST", "GET"],
+});
 
 const PORT = process.env.PORT || 8000;
 
@@ -37,6 +55,39 @@ fastify.get("/", async (_, reply) => {
 // Initialize Twilio client
 const twilioClient = new Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
+async function checkScheduledCalls() {
+  try {
+    const now = new Date();
+    const users = await User.find({
+      preferences: {
+        $elemMatch: {
+          status: "pending",
+          scheduledTime: { $lte: now },
+        },
+      },
+    });
+
+    for (const user of users) {
+      for (const call of user.preferences) {
+        if (call.status === "pending" && call.scheduledTime <= now) {
+          try {
+            await makeCall(user.phone);
+            call.status = "completed";
+          } catch (error) {
+            console.error("Error making scheduled call:", error);
+            call.status = "failed";
+          }
+        }
+      }
+      await user.save();
+    }
+  } catch (error) {
+    console.error("Error checking scheduled calls:", error);
+  }
+}
+
+// Check scheduled calls every minute
+setInterval(checkScheduledCalls, 1000);
 // Helper function to get signed URL for authenticated conversations
 async function getSignedUrl() {
   try {
@@ -61,6 +112,153 @@ async function getSignedUrl() {
     throw error;
   }
 }
+
+// Add these routes before server startup
+
+// Schedule Call endpoint
+fastify.post("/api/schedule-call", async (request, reply) => {
+  console.log("REQ BODDDY:", request.body);
+  try {
+    let phone = request.body.phone;
+    let scheduledTime = request.body.scheduledTime;
+    let currentTime = new Date().toISOString();
+
+    if (phone.startsWith("+")) {
+      phone = "+1" + phone.replace(/\D/g, "");
+    }
+
+    console.log("Formatted phone number:", phone);
+
+    const user = await User.findOne({ phone: phone });
+    if (!user) {
+      const newUser = new User({
+        phone: phone,
+        preferences: [
+          {
+            scheduledTime: new Date(scheduledTime),
+            status: "pending",
+          },
+        ],
+      });
+      await newUser.save();
+      console.log("New user created:", newUser);
+    } else {
+      user.preferences.push({
+        scheduledTime: new Date(scheduledTime),
+        status: "pending",
+      });
+      await user.save();
+      console.log("Existing user updated:", user);
+    }
+    console.log("Schedule call request:", { phone, scheduledTime });
+
+    // Format phone number
+    // let formattedPhone = phone;
+    // if (!formattedPhone.startsWith("+")) {
+    //   formattedPhone = "+1" + formattedPhone.replace(/\D/g, "");
+    // }
+
+    // // Database operations
+    // const user = await User.findOne({ phone: formattedPhone });
+    // if (!user) {
+    //   const newUser = new User({
+    //     phone: formattedPhone,
+    //     preferences: [
+    //       {
+    //         scheduledTime: new Date(scheduledTime),
+    //         status: "pending",
+    //       },
+    //     ],
+    //   });
+    //   await newUser.save();
+    //   console.log("New user created:", newUser);
+    // } else {
+    //   user.preferences.push({
+    //     scheduledTime: new Date(scheduledTime),
+    //     status: "pending",
+    //   });
+    //   await user.save();
+    //   console.log("Existing user updated:", user);
+    // }
+
+    // reply.send({
+    //   success: true,
+    //   message: `Call scheduled for ${new Date(scheduledTime).toLocaleString()}`,
+    // });
+  } catch (error) {
+    console.log("Detailed error scheduling call:", error);
+    console.error("Error scheduling call:", error);
+    reply.code(500).send({
+      success: false,
+      message: "Failed to schedule call: " + error.message,
+    });
+  }
+});
+
+// Save User endpoint
+fastify.post("/api/users", async (request, reply) => {
+  try {
+    const userData = request.body;
+    console.log("Save user request:", userData);
+
+    const newUser = new User(userData);
+    await newUser.save();
+
+    reply.send({
+      success: true,
+      user: newUser,
+    });
+  } catch (error) {
+    console.error("Error saving user:", error);
+    reply.code(500).send({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// Signin endpoint
+fastify.post("/api/signin", async (request, reply) => {
+  try {
+    const { email, password } = {
+      email: request.body.email,
+      password: request.body.password,
+    };
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      reply.code(401).send({
+        success: false,
+        message: "Invalid email or password",
+      });
+      return;
+    }
+
+    // Note: In production, use proper password hashing!
+    if (user.password === password) {
+      reply.send({
+        success: true,
+        user: {
+          email: user.email,
+          phone: user.phone,
+          preferences: user.preferences,
+        },
+      });
+    } else {
+      reply.code(401).send({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+  } catch (error) {
+    console.error("Error during signin:", error);
+    reply.code(500).send({
+      success: false,
+      message: "An error occurred during sign in",
+    });
+  }
+});
 
 // Route to initiate outbound calls
 fastify.post("/outbound-call", async (request, reply) => {
