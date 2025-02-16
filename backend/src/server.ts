@@ -50,7 +50,7 @@ io.on("connection", (socket: Socket) => {
   });
 
   socket.on("saveUser", async (user) => {
-    console.log("Save user called");
+    console.log("Save user called:", user);
     try {
       const newUser = new User(user);
       await newUser.save();
