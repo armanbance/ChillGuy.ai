@@ -5,6 +5,8 @@ import "./index.css";
 import App from "./App";
 import LandingPage from "./components/LandingPage";
 import SignupPage from "./components/SignupPage";
+import ContactPage from './components/ContactPage';
+import ResourcesPage from './components/ResourcesPage';
 import reportWebVitals from "./reportWebVitals";
 import CallButton from "./components/CallButton";
 import AboutPage from './components/AboutPage';
@@ -14,10 +16,13 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <Router>
+        <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/register" element={<SignupPage />} />
+        <Route path="/resources" element={<ResourcesPage />} />
         <Route path="/call" element={<CallButton />} />
         <Route path="/about" element={<AboutPage />} />
       </Routes>
