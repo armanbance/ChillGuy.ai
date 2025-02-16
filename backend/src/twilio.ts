@@ -7,12 +7,16 @@ var authToken = process.env.TWILIO_AUTH_TOKEN;
 
 var client = require("twilio")(accountSid, authToken);
 
-async function makeCall() {
+async function makeCall(toNumber: string) {
+  if (!toNumber) {
+    throw new Error("Phone number is required");
+  }
+
   try {
     const call = await client.calls.create({
       twiml:
         "<Response><Say>Hey, it's ChillGuy Dot A I. I'm calling to check in on you. How are you doing today?</Say></Response>",
-      to: "+14089604093",
+      to: toNumber,
       from: "+17432508492",
     });
 

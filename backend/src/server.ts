@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import makeCall from "./twilio";
 import User from "./models/User";
+import { Document } from "mongoose";
 
 dotenv.config();
 
@@ -13,6 +14,14 @@ const server = createServer(app);
 
 const PORT = process.env.PORT || 4000;
 const MONGODB_URI = process.env.MONGODB_URI || "";
+
+interface IUser extends Document {
+  phone: string;
+  preferences: {
+    scheduledTime: Date;
+    status: string;
+  }[];
+}
 
 mongoose.set("strictQuery", false);
 mongoose
@@ -35,15 +44,16 @@ app.get("/", (req, res) => {
 
 io.on("connection", (socket: Socket) => {
   console.log("A user connected:", socket.id);
+
   socket.on("hello", async (data) => {
     console.log("hello");
   });
+
   socket.on("saveUser", async (user) => {
     console.log("Save user called");
     try {
       const newUser = new User(user);
       await newUser.save();
-      console.log("User saved successfully:", newUser);
       socket.emit("userSaved", { success: true, user: newUser });
     } catch (error) {
       console.error("Error saving user:", error);
@@ -51,14 +61,10 @@ io.on("connection", (socket: Socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
-  });
-
   socket.on("makeCall", async (data) => {
-    console.log("makeCall initiated");
+    console.log("makeCall initiated with phone:", data.phone);
     try {
-      const callSid = await makeCall();
+      const callSid = await makeCall(data.phone);
       socket.emit("callStatus", {
         status: "success",
         message: "Call initiated successfully!",
@@ -71,9 +77,99 @@ io.on("connection", (socket: Socket) => {
       });
     }
   });
+
+  socket.on(
+    "scheduleCall",
+    async (data: { phone: string; scheduledTime: string }) => {
+      console.log("Schedule call initiated with data:", {
+        phone: data.phone,
+        scheduledTime: data.scheduledTime,
+        currentTime: new Date().toISOString(),
+      });
+      try {
+        if (!data.phone.startsWith("+")) {
+          data.phone = "+1" + data.phone.replace(/\D/g, "");
+        }
+
+        console.log("Formatted phone number:", data.phone);
+
+        const user = (await User.findOne({ phone: data.phone })) as IUser;
+        if (!user) {
+          const newUser = new User({
+            phone: data.phone,
+            preferences: [
+              {
+                scheduledTime: new Date(data.scheduledTime),
+                status: "pending",
+              },
+            ],
+          });
+          await newUser.save();
+          console.log("New user created:", newUser);
+        } else {
+          user.preferences.push({
+            scheduledTime: new Date(data.scheduledTime),
+            status: "pending",
+          });
+          await user.save();
+          console.log("Existing user updated:", user);
+        }
+        socket.emit("callStatus", {
+          status: "success",
+          message: `Call scheduled for ${new Date(
+            data.scheduledTime
+          ).toLocaleString()}`,
+        });
+      } catch (error) {
+        console.error("Detailed error scheduling call:", error);
+        socket.emit("callStatus", {
+          status: "error",
+          message: "Failed to schedule call: " + (error as Error).message,
+        });
+      }
+    }
+  );
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
 });
 
 // Start the server
 server.listen(PORT, () => {
   console.log(`Socket.IO server running on http://localhost:${PORT}`);
 });
+
+async function checkScheduledCalls() {
+  try {
+    const now = new Date();
+    const users = (await User.find({
+      preferences: {
+        $elemMatch: {
+          status: "pending",
+          scheduledTime: { $lte: now },
+        },
+      },
+    })) as IUser[];
+
+    for (const user of users) {
+      for (const call of user.preferences) {
+        if (call.status === "pending" && call.scheduledTime <= now) {
+          try {
+            await makeCall(user.phone);
+            call.status = "completed";
+          } catch (error) {
+            console.error("Error making scheduled call:", error);
+            call.status = "failed";
+          }
+        }
+      }
+      await user.save();
+    }
+  } catch (error) {
+    console.error("Error checking scheduled calls:", error);
+  }
+}
+
+// Check scheduled calls every minute
+setInterval(checkScheduledCalls, 1000);
