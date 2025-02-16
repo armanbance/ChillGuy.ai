@@ -14,7 +14,7 @@ const AboutPage = () => {
           <Link to="/contact">Contact</Link>
         </div>
         <div className="nav-buttons">
-          <Link to="/signup" className="btn btn-outline">Sign in</Link>
+          <Link to="/signin" className="btn btn-outline">Sign in</Link>
           <Link to="/signup" className="btn btn-dark">Register</Link>
         </div>
       </nav>

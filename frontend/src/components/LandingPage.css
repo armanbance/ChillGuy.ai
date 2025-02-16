@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'TheFont';
+    src: url("https://garet.typeforward.com/assets/fonts/shared/TFMixVF.woff2") format('woff2');
+}
+
 /* General Styles */
 body {
     margin: 0;
@@ -17,7 +22,6 @@ body {
 /* Navbar */
 .navbar {
     width: 100vw;
-    /* max-width: 1200px;  Prevents content from spreading too wide */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -28,14 +32,14 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    margin: auto; /* Centers navbar */
+    margin: auto;
     box-sizing: border-box;
 }
 
 /* Navigation Links */
 .nav-links {
     display: flex;
-    flex-grow: 1; /* Allows proper space distribution */
+    flex-grow: 1;
     justify-content: center;
     gap: 20px;
 }
@@ -49,9 +53,9 @@ body {
 /* Navigation Buttons */
 .nav-buttons {
     display: flex;
-    gap: 10px; /* Adds space between buttons */
+    gap: 10px;
     align-items: center;
-    margin-left: auto; /* Ensures buttons are pushed to the right */
+    margin-left: auto;
 }
 
 /* Buttons */
@@ -62,7 +66,7 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     border-radius: 5px;
-    white-space: nowrap; /* Ensures text doesn't wrap */
+    white-space: nowrap;
 }
 
 .btn-outline {
@@ -93,19 +97,33 @@ body {
     justify-content: center;
     height: 100vh;
     text-align: center;
-    padding-top: 80px; /* Adjusts spacing from navbar */
+    padding-top: 80px;
 }
 
 .hero-title {
+    font-family: 'TheFont';
     font-size: 48px;
     font-weight: bold;
     color: #222;
+    animation: letter-breathe 3s ease-in-out infinite;
+}
+
+@keyframes letter-breathe {
+    from,
+    to {
+        font-variation-settings: 'wght' 100;
+    }
+    50% {
+        font-variation-settings: 'wght' 900;
+    }
 }
 
 .hero-text {
-    font-size: 18px;
+    font-size: 24px;
     color: #555;
     margin-top: 10px;
+    font-weight: bold;
+    font-style: italic;
 }
 
 .hero-buttons {

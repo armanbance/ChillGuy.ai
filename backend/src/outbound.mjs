@@ -16,7 +16,8 @@ console.log("TEST");
 
 const MONGODB_URI =
   process.env.MONGODB_URI ||
-  ""; //ADDDDDD HEREEEEEE
+  ""
+; //ADDDDDD HEREEEEEE
 
 console.log("MONGODB_URI:", MONGODB_URI);
 mongoose.set("strictQuery", false);

@@ -4,7 +4,7 @@ let socket: Socket | null = null;
 
 export const getSocket = () => {
   if (!socket) {
-    socket = io("http://localhost:4000", {
+    socket = io("http://localhost:4000", { 
       //get your macbook ip address
       withCredentials: true,
       transports: ["websocket", "polling"],

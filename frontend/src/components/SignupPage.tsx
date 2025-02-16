@@ -99,7 +99,7 @@ const SignupPage: React.FC = () => {
           <Link to="/about">About</Link>
         </div>
         <div className="nav-buttons">
-          <Link to="/signup" className="btn btn-outline">
+          <Link to="/signin" className="btn btn-outline">
             Sign in
           </Link>
           <Link to="/signup" className="btn btn-dark">
