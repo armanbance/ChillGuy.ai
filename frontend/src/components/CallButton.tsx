@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { emitSocketEvent, getSocket, addSocketListener } from "../socket";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import "./CallButton.css";
 import { useAuth } from "../hooks/useAuth";
+import { schedule } from "../api/scheduleApi";
 
 const CallButton = () => {
   const [callStatus, setCallStatus] = useState<string>("");
@@ -65,6 +66,16 @@ const CallButton = () => {
     }
   };
 
+  function formatDateToMongoDB(date: any) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
   const scheduleCall = async () => {
     if (!scheduledTime || !userPhone) {
       setCallStatus("Please enter both phone number and time");
@@ -74,16 +85,24 @@ const CallButton = () => {
     const scheduledDateTime = new Date(scheduledTime);
     const now = new Date();
 
+    const formattedDate = formatDateToMongoDB(now);
+
     if (scheduledDateTime <= now) {
       setCallStatus("Please select a future time");
       return;
     }
 
-    emitSocketEvent("scheduleCall", {
+    console.log("formatted date:", formattedDate);
+    const scheduleObject = {
       phone: userPhone,
-      scheduledTime: scheduledTime,
-    });
-
+      time: formattedDate,
+    };
+    const response = await schedule(scheduleObject);
+    // emitSocketEvent("scheduleCall", {
+    //   phone: userPhone,
+    //   scheduledTime: scheduledTime,
+    // });
+    console.log("SCHEDULING RESPONSE:", response);
     await addToGoogleCalendar(scheduledDateTime);
   };
 
@@ -96,15 +115,21 @@ const CallButton = () => {
     <div className="call-container">
       {/* Added Navbar */}
       <nav className="navbar">
-        <Link to="/" className="logo">ChillGuy.ai</Link>
+        <Link to="/" className="logo">
+          ChillGuy.ai
+        </Link>
         <div className="nav-links">
           <Link to="/resources">Resources</Link>
           <Link to="/about">About</Link>
           <Link to="/contact">Contact</Link>
         </div>
         <div className="nav-buttons">
-          <Link to="/signup" className="btn btn-outline">Sign in</Link>
-          <Link to="/signup" className="btn btn-dark">Register</Link>
+          <Link to="/signup" className="btn btn-outline">
+            Sign in
+          </Link>
+          <Link to="/signup" className="btn btn-dark">
+            Register
+          </Link>
         </div>
       </nav>
 

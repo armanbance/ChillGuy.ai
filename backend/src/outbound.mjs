@@ -13,11 +13,7 @@ dotenv.config();
 console.log("TEST");
 
 // Check for required environment variables
-
-const MONGODB_URI =
-  process.env.MONGODB_URI ||
-  ""; //ADDDDDD HEREEEEEE
-
+const MONGODB_URI = process.env.MONGODB_URI || ""; //ADDDDDD HEREEEEEE
 console.log("MONGODB_URI:", MONGODB_URI);
 mongoose.set("strictQuery", false);
 mongoose
@@ -71,7 +67,7 @@ async function checkScheduledCalls() {
       for (const call of user.preferences) {
         if (call.status === "pending" && call.scheduledTime <= now) {
           try {
-            await makeCall(user.phone);
+            // await makeCall(user.phone);
             call.status = "completed";
           } catch (error) {
             console.error("Error making scheduled call:", error);
@@ -120,12 +116,12 @@ fastify.post("/api/schedule-call", async (request, reply) => {
   console.log("REQ BODDDY:", request.body);
   try {
     let phone = request.body.phone;
-    let scheduledTime = request.body.scheduledTime;
+    let scheduledTime = request.body.time;
     let currentTime = new Date().toISOString();
 
-    if (phone.startsWith("+")) {
-      phone = "+1" + phone.replace(/\D/g, "");
-    }
+    // if (!phone.startsWith("+")) {
+    //   phone = "+1" + phone.replace(/\D/g, "");
+    // }
 
     console.log("Formatted phone number:", phone);
 
@@ -135,7 +131,7 @@ fastify.post("/api/schedule-call", async (request, reply) => {
         phone: phone,
         preferences: [
           {
-            scheduledTime: new Date(scheduledTime),
+            scheduledTime: scheduledTime,
             status: "pending",
           },
         ],
@@ -144,7 +140,7 @@ fastify.post("/api/schedule-call", async (request, reply) => {
       console.log("New user created:", newUser);
     } else {
       user.preferences.push({
-        scheduledTime: new Date(scheduledTime),
+        scheduledTime: scheduledTime,
         status: "pending",
       });
       await user.save();

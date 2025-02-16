@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: false },
   preferences: [
     {
-      scheduledTime: { type: Date, required: true },
+      scheduledTime: { type: String, required: true },
       status: {
         type: String,
         enum: ["pending", "completed", "failed"],
