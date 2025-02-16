@@ -1,10 +1,23 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { emitSocketEvent, addSocketListener } from '../socket';
 import './SignupPage.css';
 
+
+
+interface SignupForm {
+    username: string;
+    email: string;
+    password: string;
+    phoneNumber: string;
+  }
+
+
 const SignupPage: React.FC = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        username: '',
+        name: '',
         email: '',
         password: '',
         phone: ''
@@ -18,10 +31,26 @@ const SignupPage: React.FC = () => {
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        console.log('Form submitted:', formData);
-    };
+    // Handle form submission
+    const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Emit the signup data through socket
+    console.log("form data:",formData);
+    emitSocketEvent('saveUser', formData);
+
+    // Listen for the response from the server
+    addSocketListener<{success: boolean; user?: any; error?: any}>('userSaved', (response) => {
+      if (response.success) {
+        console.log('User registered successfully:', response.user);
+        // Redirect to another page (e.g., landing page) after successful signup
+        navigate('/');
+      } else {
+        console.error('Registration failed:', response.error);
+        // Handle error (show error message to user)
+      }
+    });
+  };
 
     return (
         <div className="landing-container">
@@ -59,12 +88,12 @@ const SignupPage: React.FC = () => {
                     <h2>Sign Up</h2>
                     <form onSubmit={handleSubmit} className="signup-form">
                         <div className="form-group">
-                            <label htmlFor="username">Username</label>
+                            <label htmlFor="name">Name</label>
                             <input
                                 type="text"
-                                id="username"
-                                name="username"
-                                value={formData.username}
+                                id="name"
+                                name="name"
+                                value={formData.name}
                                 onChange={handleChange}
                                 required
                             />
