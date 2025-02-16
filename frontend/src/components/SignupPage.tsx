@@ -29,6 +29,9 @@ const SignupPage: React.FC = () => {
             <nav className="navbar">
                 <Link to="/" className="logo">ChillGuy.ai</Link>
                 <div className="nav-links">
+                    <a href="/resources">Resources</a>
+                    <a href="#">About</a>
+                    <a href="/contact">Contact</a>
                     <Link to="/resources">Resources</Link>
                     <Link to="/about">About</Link>
                     <Link to="/contact">Contact</Link>
