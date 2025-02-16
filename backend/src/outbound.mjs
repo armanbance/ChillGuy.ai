@@ -7,6 +7,7 @@ import Twilio from "twilio";
 import WebSocket from "ws";
 import mongoose from "mongoose";
 import User from "./models/User.js";
+import axios from "axios"; // Import Axios
 
 // Load environment variables from .env file
 dotenv.config();
@@ -52,6 +53,7 @@ fastify.get("/", async (_, reply) => {
 const twilioClient = new Twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
 async function checkScheduledCalls() {
+  // console.log(new Date());
   try {
     const now = new Date();
     const users = await User.find({
@@ -63,11 +65,25 @@ async function checkScheduledCalls() {
       },
     });
 
+    console.log("NOW: ", now);
+
     for (const user of users) {
       for (const call of user.preferences) {
-        if (call.status === "pending" && call.scheduledTime <= now) {
+        if (call.status === "pending" && new Date(call.scheduledTime) <= now) {
           try {
             // await makeCall(user.phone);
+            console.log("call.scheduled time:", new Date(call.scheduledTime));
+            const response = await axios.post(
+              "http://localhost:8000/outbound-call", // REPLACE WITH NGROK URL
+              {
+                prompt:
+                  "Purpose: You are Chiller, a compassionate wellness check-in voice agent. Your role is to help users relax, center themselves, and feel supported through guided breathing exercises and mindfulness check-ins. Tasks: Greet the user and ask how they’re feeling. Adapt your response based on their emotional state—if stressed, suggest a slowing down with a breathing exercise; if calm, invite them to celebrate the moment with a brief pause. Guide the user through a simple breathing exercise: instruct them to find a comfortable position, optionally close their eyes, and breathe in slowly (count “1… 2… 3…”), then exhale completely. Repeat once or twice. End with gentle encouragement and ask how they feel afterward.   Guidelines:  Maintain a calm, patient, and warm tone.  Use clear, simple, and concise instructions.  Focus on mindfulness and self-care.   If you’re unsure of the user’s response, ask for clarification politely..",
+                first_message:
+                  "Hi! I'm Chiller from Chill Guy AI. How are you doing today?",
+                number: `+1${user.phone}`,
+              }
+            );
+            console.log("Call initiated:", response.data);
             call.status = "completed";
           } catch (error) {
             console.error("Error making scheduled call:", error);

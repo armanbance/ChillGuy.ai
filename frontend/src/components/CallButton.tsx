@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import "./CallButton.css";
 import { useAuth } from "../hooks/useAuth";
 import { schedule } from "../api/scheduleApi";
@@ -69,8 +69,9 @@ const CallButton = () => {
     const scheduledDateTime = new Date(scheduledTime);
     const now = new Date();
 
-    const formattedDate = formatDateToMongoDB(now);
+    const formattedDate = formatDateToMongoDB(scheduledDateTime);
 
+    console.log("FINAL FORMATTED DATE", formattedDate);
     if (scheduledDateTime <= now) {
       setCallStatus("Please select a future time");
       return;
@@ -91,19 +92,20 @@ const CallButton = () => {
   };
 
   const makeCall = async () => {
+    console.log("MAKE CALL OOPSIES");
     setCallStatus("Initiating call...");
     try {
       // Replace socket emit with HTTP request
-      const response = await fetch('/api/calls/make', {
-        method: 'POST',
+      const response = await fetch("/api/calls/make", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ phone: userPhone }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to initiate call');
+        throw new Error("Failed to initiate call");
       }
 
       setCallStatus("Call initiated successfully!");
@@ -126,7 +128,9 @@ const CallButton = () => {
           <Link to="/contact">Contact</Link>
         </div>
         <div className="nav-buttons">
-          <Link to="/" className="btn btn-dark">Log Out</Link>
+          <Link to="/" className="btn btn-dark">
+            Log Out
+          </Link>
         </div>
       </nav>
 
